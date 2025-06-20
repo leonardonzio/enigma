@@ -3,6 +3,7 @@
 ### TODO
 - [ ] Implement plugboard
 - [ ] Implement rotors rotation
+- [ ] Implement notch ecc
 
 ### How to run
 - compiling:
