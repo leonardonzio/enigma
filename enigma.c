@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 /* --------- constants + macros */
 #define ALPHABET_SIZE 26
@@ -15,18 +16,18 @@ typedef struct {
 
 typedef struct {
     Wiring wiring;
-    uint8_t position;
+    int position;
     char *name;
 } Rotor;
 
 // https://www.ciphermachinesandcryptology.com/en/enigmatech.htm
-static Reflector reflectors[] = {
+static Reflector ALL_REFLECTORS[] = {
     { .wiring= "YRUHQSLDPXNGOKMIEBFZCWVJAT", .name = "Reflector B" },
     { .wiring= "FVPJIAOYEDRZXWGCTKUQSBNMHL", .name = "Reflector C" }
 };
 
 // https://www.codesandciphers.org.uk/enigma/rotorspec.htm
-static Rotor rotors[] = {
+static Rotor ALL_ROTORS[] = {
     { .wiring = "EKMFLGDQVZNTOWYHXUSPAIBRCJ", .position = 0, .name = "Rotor I" },  // Right rotor (first in signal path)
     { .wiring = "AJDKSIRUXBLHWTMCQGZNPYFVOE", .position = 0, .name = "Rotor II" },   // Middle rotor
     { .wiring = "BDFHJLCPRTXVZNYEIWGAKMUSQO", .position = 0, .name = "Rotor III" } // Left rotor (last in forward path)
@@ -34,35 +35,36 @@ static Rotor rotors[] = {
 
 /* --------- functions */
 
-char encrypt_char(char c) {
-    printf("Rotor I (right):\t%s\n", rotors[0].wiring);
-    printf("Rotor II (middle):\t%s\n", rotors[1].wiring);
-    printf("Rotor III (left):\t%s\n", rotors[2].wiring);
-    printf("Reflector B:\t\t%s\n", reflectors[0].wiring);
+
+char encrypt_char(char c, Rotor rotors[], Reflector reflector) {
     
+    printf("Right: %s\t%s\n", rotors[0].name, rotors[0].wiring);
+    printf("Middle: %s\t%s\n", rotors[1].name, rotors[1].wiring);
+    printf("Left: %s\t%s\n", rotors[2].name, rotors[2].wiring);
+    printf("Reflector:%s\t%s\n", reflector.name, reflector.wiring);
     printf("\nLetter: %c:\n", c);
     
     // convert to index of the alphabet (0-25)
-    uint8_t index = (uint8_t) c - 'A';
+    int index = (int) c - 'A';
     printf("Input: %c (position %d)\n", c, index);
     
     // forward path: I -> II -> III
     for (int i=0; i<NUM_ROTORS; i++) {
         
         // add the offset of rotor position
-        uint8_t input_pos = (index + rotors[i].position) % ALPHABET_SIZE;
+        int input_pos = (index + rotors[i].position) % ALPHABET_SIZE;
         
         // ouput character from rotor wiring
         char output_char = rotors[i].wiring[input_pos];
         
         // convert back to index for next rotor
-        index = (uint8_t)(output_char - 'A');
+        index = (int)(output_char - 'A');
         printf("Passing in %s:\tposition %d -> %c (position %d)\n", rotors[i].name, input_pos, output_char, index);
     }
     
     // reflector B
-    char reflected_char = reflectors[0].wiring[index];
-    index = (uint8_t)(reflected_char - 'A');
+    char reflected_char = reflector.wiring[index];
+    index = (int)(reflected_char - 'A');
     printf("Passing in reflector B: -> %c (position %d)\n", reflected_char, index);
     
     // backward path: III -> II -> I
@@ -71,7 +73,7 @@ char encrypt_char(char c) {
         char input_char = (char)('A' + index);
         
         // find inverse mapping: which input position gives us this output?
-        uint8_t inverse_pos = 0;
+        int inverse_pos = 0;
         for (int j=0; j<ALPHABET_SIZE; j++) {
             
             if (rotors[i].wiring[j] == input_char) {
@@ -93,13 +95,21 @@ char encrypt_char(char c) {
 }
 
 int main(int argc, char *argv[]) {
+    
     printf("------------------");
     printf("Enigma M3");
     printf("------------------\n");
     printf("Rotors I-II-III, Reflector B, all rotors at position 0\n\n");
+   
+    Reflector reflector = ALL_REFLECTORS[0]; // Reflector B
+    Rotor rotors[NUM_ROTORS] = {
+        ALL_ROTORS[0], // Rotor I
+        ALL_ROTORS[1], // Rotor II
+        ALL_ROTORS[2]  // Rotor III
+    };
     
     printf("Test: encrypt character Q:\n");
-    char encrypted_char = encrypt_char('Q');
+    char encrypted_char = encrypt_char('Q', rotors, reflector);
     printf("\nEncrypted: Q -> %c\n", encrypted_char);
     
     return 0;
