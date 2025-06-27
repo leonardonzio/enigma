@@ -31,7 +31,10 @@ static Reflector ALL_REFLECTORS[] = {
 static Rotor ALL_ROTORS[] = {
     { .wiring = "EKMFLGDQVZNTOWYHXUSPAIBRCJ", .notch = 'Q', .position = 0, .name = "Rotor I" },  // Right rotor (first in signal path)
     { .wiring = "AJDKSIRUXBLHWTMCQGZNPYFVOE", .notch = 'E', .position = 0, .name = "Rotor II" },   // Middle rotor
-    { .wiring = "BDFHJLCPRTXVZNYEIWGAKMUSQO", .notch = 'V', .position = 0, .name = "Rotor III" } // Left rotor (last in forward path)
+    { .wiring = "BDFHJLCPRTXVZNYEIWGAKMUSQO", .notch = 'V', .position = 0, .name = "Rotor III" }, // Left rotor (last in forward path)
+
+    { .wiring = "ESOVPZJAYQUIRHXLNFTGKDCMWB", .notch = 'J', .position = 0, .name = "Rotor IV"},
+    { .wiring = "VZBRGITYUPSDNHLXAWMJQOFECK", .notch = 'Z', .position = 0, .name = "Rotor V"}
 };
 
 /* --------- functions */
@@ -128,9 +131,9 @@ int main(int argc, char *argv[]) {
     
     Reflector reflector = ALL_REFLECTORS[0]; // Reflector B
     Rotor rotors[NUM_ROTORS] = {
-        ALL_ROTORS[2],  // Rotor III
+        ALL_ROTORS[2], // Rotor III
         ALL_ROTORS[1], // Rotor II
-        ALL_ROTORS[0] // Rotor I
+        ALL_ROTORS[0]  // Rotor I
     };
 
     printf(" _____       _                             __  __ _____\n");
