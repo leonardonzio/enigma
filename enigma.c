@@ -6,6 +6,9 @@
 #define ALPHABET_SIZE 26
 #define NUM_ROTORS 3
 
+#define INDEX_TO_C(index)   ((char) ('A' + (index))) // da numero dell alfabeto al carattere corrispondente
+#define C_TO_INDEX(c)       ((int)  ((c) - 'A')) // da carattere al numero dell alfabeto
+
 /* --------- structs & vars */
 typedef char Wiring[ALPHABET_SIZE];
 
@@ -21,6 +24,12 @@ typedef struct {
     char *name;
 } Rotor;
 
+// Steckerbrett
+typedef struct {
+    char wiring[ALPHABET_SIZE]; 
+} Plugboard;
+
+
 // https://www.ciphermachinesandcryptology.com/en/enigmatech.htm
 static Reflector ALL_REFLECTORS[] = {
     { .wiring= "YRUHQSLDPXNGOKMIEBFZCWVJAT", .name = "Reflector B" },
@@ -29,15 +38,33 @@ static Reflector ALL_REFLECTORS[] = {
 
 // https://www.codesandciphers.org.uk/enigma/rotorspec.htm
 static Rotor ALL_ROTORS[] = {
-    { .wiring = "EKMFLGDQVZNTOWYHXUSPAIBRCJ", .notch = 'Q', .position = 0, .name = "Rotor I" },  // Right rotor (first in signal path)
-    { .wiring = "AJDKSIRUXBLHWTMCQGZNPYFVOE", .notch = 'E', .position = 0, .name = "Rotor II" },   // Middle rotor
-    { .wiring = "BDFHJLCPRTXVZNYEIWGAKMUSQO", .notch = 'V', .position = 0, .name = "Rotor III" }, // Left rotor (last in forward path)
+    { .wiring = "EKMFLGDQVZNTOWYHXUSPAIBRCJ", .notch = 'Q', .position = 0, .name = "Rotor I" },     // Right rotor (first in signal path)
+    { .wiring = "AJDKSIRUXBLHWTMCQGZNPYFVOE", .notch = 'E', .position = 0, .name = "Rotor II" },    // Middle rotor
+    { .wiring = "BDFHJLCPRTXVZNYEIWGAKMUSQO", .notch = 'V', .position = 0, .name = "Rotor III" },   // Left rotor (last in forward path)
 
     { .wiring = "ESOVPZJAYQUIRHXLNFTGKDCMWB", .notch = 'J', .position = 0, .name = "Rotor IV"},
     { .wiring = "VZBRGITYUPSDNHLXAWMJQOFECK", .notch = 'Z', .position = 0, .name = "Rotor V"}
 };
 
+static Plugboard PLUGBOARD_CONFIGS[] = {
+    { .wiring = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }, // no connections
+    { .wiring = "ABQDEFGHIJKLMNOPCRSTUVWXYZ" } // Q swapped with C
+};
+
+
 /* --------- functions */
+
+// e.g. vedo la lettera C alla posizione 10, mando cio che ci sarebbe nell alafabeto alla posizione 10, ovvero J
+// (entra C ed esce J)
+char enter_playboard(char c, Plugboard pluboard){
+    for (int i=0; i<ALPHABET_SIZE; i++) {
+        if (c == pluboard.wiring[i]) {
+            return INDEX_TO_C(i); }
+    }
+    return c;
+}
+
+
 
 void step_rotors(Rotor rotors[]){
    
@@ -46,13 +73,14 @@ void step_rotors(Rotor rotors[]){
     bool middle_step = false; // for double step
 
     // if middle rotor is at notch, step leftest rotor + middle one
-    if (rotors[1].position == (rotors[1].notch - 'A')) {
+    if (rotors[1].position == C_TO_INDEX(rotors[1].notch)) {
+
         rotors[2].position = (rotors[2].position + 1) % ALPHABET_SIZE;
         middle_step = true;
     }
     
     // if right rotor is at notch, step middle rotor
-    if (rotors[0].position == (rotors[0].notch - 'A')) {
+    if (rotors[0].position == C_TO_INDEX(rotors[0].notch)) {
         middle_step = true;
     }
 
@@ -78,14 +106,12 @@ void print_status(Rotor rotors[]){
         printf("Position: %d\n", rotors[i].position);
         printf("--------------------\n");
     }
-
 }
-
 
 
 char encrypt_char(char c, Rotor rotors[], Reflector reflector) {
     
-    int index = (int) c - 'A'; // converted to index (0-25)
+    int index = C_TO_INDEX(c);
     char c_out;
     
     printf("Input: %c (position %d)\n", c, index);
@@ -98,12 +124,12 @@ char encrypt_char(char c, Rotor rotors[], Reflector reflector) {
         
         // ouput character from rotor wiring + convert back to index for the next rotor
         c_out = rotors[i].wiring[index];
-        index = (int)(c_out - 'A');
+        index = C_TO_INDEX(c_out);
     }
     
     // passing in reflector
     c_out = reflector.wiring[index];
-    index = (int)(c_out - 'A');
+    index = C_TO_INDEX(c_out);
     
     // backward path
     for (int i=NUM_ROTORS - 1; i >= 0; i--) {
@@ -121,7 +147,7 @@ char encrypt_char(char c, Rotor rotors[], Reflector reflector) {
         // subtract the rotor position (inverse of rotor rotation)
         index = (inverse_pos + ALPHABET_SIZE - rotors[i].position) % ALPHABET_SIZE;
         
-        c_out = (char)('A' + index);
+        c_out = INDEX_TO_C(index);
     }
     
     return c_out;
@@ -145,13 +171,17 @@ int main(int argc, char *argv[]) {
 
     print_status(rotors);
     
+    char c = 'C';
+    printf("\nTest: encrypt character %c:\n", c);
+    
+    c = enter_playboard(c, PLUGBOARD_CONFIGS[1]); // C swapped with Q in plugboard 
+    printf("\nNew character after plugboard: %c\n", c);
+                                                                    
     step_rotors(rotors); 
     print_status(rotors);
     
-    printf("\nTest: encrypt character Q:\n");
-    
-    char encrypted_char = encrypt_char('Q', rotors, reflector);
-    printf("\nEncrypted: Q -> %c\n", encrypted_char);
+    char encrypted_char = encrypt_char(c, rotors, reflector);
+    printf("\nEncrypted: %c -> %c\n",c, encrypted_char);
     
     return 0;
 }
