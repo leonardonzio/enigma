@@ -1,11 +1,13 @@
-# Enigma M3 Wehrmacht simulator
+# Enigma M3 Simulator
 
-### TODO
-- [ ] Implement plugboard
-- [ ] Implement rotors rotation
-- [ ] Implement notch ecc
+#### TODO
+- [x] Implement plugboard
+- [x] Implement notch
+- [x] Implement rotors & rotor stepping
+- [x] Implement reflector
+- [ ] Implement keyboard
 
-### How to run
+#### How to use
 - compiling:
     ```bash
     make
