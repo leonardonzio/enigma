@@ -48,7 +48,7 @@ static Rotor ALL_ROTORS[] = {
 
 static Plugboard PLUGBOARD_CONFIGS[] = {
     { .wiring = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }, // no connections
-    { .wiring = "ABQDEFGHIJKLMNOPCRSTUVWXYZ" } // Q swapped with C
+    { .wiring = "ABQDEFGHIJKLMNOPCRSTUVWXYZ" }  // Q swapped with C
 };
 
 
@@ -56,14 +56,13 @@ static Plugboard PLUGBOARD_CONFIGS[] = {
 
 // e.g. vedo la lettera C alla posizione 10, mando cio che ci sarebbe nell alafabeto alla posizione 10, ovvero J
 // (entra C ed esce J)
-char enter_playboard(char c, Plugboard pluboard){
-    for (int i=0; i<ALPHABET_SIZE; i++) {
-        if (c == pluboard.wiring[i]) {
-            return INDEX_TO_C(i); }
+char enter_playboard(char c, Plugboard plugboard){
+    for (int i=0; i<ALPHABET_SIZE; i++){
+        if (c == plugboard.wiring[i]) return INDEX_TO_C(i);
     }
+
     return c;
 }
-
 
 
 void step_rotors(Rotor rotors[]){
@@ -181,7 +180,9 @@ int main(int argc, char *argv[]) {
     print_status(rotors);
     
     char encrypted_char = encrypt_char(c, rotors, reflector);
-    printf("\nEncrypted: %c -> %c\n",c, encrypted_char);
+    char finalchar = enter_playboard(encrypted_char, PLUGBOARD_CONFIGS[1]);
+    
+    printf("\nEncrypted: %c -> %c\n", c, finalchar);
     
     return 0;
 }
