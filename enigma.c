@@ -1,6 +1,8 @@
+#define _GNU_SOURCE
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 /* --------- constants + macros */
 #define ALPHABET_SIZE 26
@@ -56,19 +58,18 @@ static Plugboard PLUGBOARD_CONFIGS[] = {
 
 // e.g. vedo la lettera C alla posizione 10, mando cio che ci sarebbe nell alafabeto alla posizione 10, ovvero J
 // (entra C ed esce J)
-char enter_playboard(char c, Plugboard plugboard){
+char enter_plugboard(char c, Plugboard plugboard){
     for (int i=0; i<ALPHABET_SIZE; i++){
         if (c == plugboard.wiring[i]) return INDEX_TO_C(i);
     }
-
     return c;
 }
 
 
+// NOT CORRECT?
 void step_rotors(Rotor rotors[]){
-   
-    printf("\n---------------STEPPING-------------------\n\n");
     
+    printf("\nSTEPPING\n\n");
     bool middle_step = false; // for double step
 
     // if middle rotor is at notch, step leftest rotor + middle one
@@ -93,30 +94,33 @@ void step_rotors(Rotor rotors[]){
 
 
 void print_status(Rotor rotors[]){
-
-    for (int i=0; i<NUM_ROTORS; i++){
+    int i, j;
+    printf("-----STATUS-----\n");
+    for (i = 0; i < NUM_ROTORS; i++){
 
         printf("Rotor %s:\n", rotors[i].name);
         printf("Wiring: ");
-        for(int j=0; j<ALPHABET_SIZE; j++){
+        for(j = 0; j < ALPHABET_SIZE; j++){
             printf("%c", rotors[i].wiring[j]);
         }
         printf("\nNotch: %c\n", rotors[i].notch);
         printf("Position: %d\n", rotors[i].position);
         printf("--------------------\n");
     }
+    printf("----end of status----\n\n");
 }
 
 
 char encrypt_char(char c, Rotor rotors[], Reflector reflector) {
     
     int index = C_TO_INDEX(c);
+    int i, j;
     char c_out;
     
     printf("Input: %c (position %d)\n", c, index);
     
     // forward path
-    for (int i=0; i<NUM_ROTORS; i++) {
+    for (i = 0; i < NUM_ROTORS; i++) {
         
         // add the offset of rotor position to the index
         index = (index + rotors[i].position) % ALPHABET_SIZE;
@@ -131,11 +135,11 @@ char encrypt_char(char c, Rotor rotors[], Reflector reflector) {
     index = C_TO_INDEX(c_out);
     
     // backward path
-    for (int i=NUM_ROTORS - 1; i >= 0; i--) {
+    for (i = NUM_ROTORS - 1; i >= 0; i--) {
         
         // find inverse mapping: which input position gives us this output?
         int inverse_pos = 0;
-        for (int j=0; j<ALPHABET_SIZE; j++) {
+        for (j = 0; j < ALPHABET_SIZE; j++) {
             
             if (rotors[i].wiring[j] == c_out) {
                 inverse_pos = j;
@@ -160,6 +164,10 @@ int main(int argc, char *argv[]) {
         ALL_ROTORS[1], // Rotor II
         ALL_ROTORS[0]  // Rotor I
     };
+    int nread, i;
+    size_t len = 0;
+    char *buffer = NULL;
+    char *enc_buffer = NULL;
 
     printf(" _____       _                             __  __ _____\n");
     printf("| ____|_ __ (_) __ _ _ __ ___   __ _      |  \\/  |___ /\n");
@@ -169,20 +177,44 @@ int main(int argc, char *argv[]) {
     printf("               |___/                                   \n");
 
     print_status(rotors);
+  
+    printf("Enter word to encrypt: (only uppercase letters, no spaces)\n");
+    nread = getline(&buffer, &len, stdin);
+    if (nread == -1) {
+        perror("Error reading input");
+        free(buffer);
+        return 1;
+    }
     
-    char c = 'C';
-    printf("\nTest: encrypt character %c:\n", c);
+    // remove newline 
+    if (nread > 0 && buffer[nread - 1] == '\n') {
+        buffer[nread - 1] = '\0';
+    }
     
-    c = enter_playboard(c, PLUGBOARD_CONFIGS[1]); // C swapped with Q in plugboard 
-    printf("\nNew character after plugboard: %c\n", c);
-                                                                    
-    step_rotors(rotors); 
-    print_status(rotors);
+    enc_buffer = malloc(nread + 1);
     
-    char encrypted_char = encrypt_char(c, rotors, reflector);
-    char finalchar = enter_playboard(encrypted_char, PLUGBOARD_CONFIGS[1]);
-    
-    printf("\nEncrypted: %c -> %c\n", c, finalchar);
+    for (i = 0; buffer[i] != '\0'; i++) {
+        printf("encrypting character: %c\n", buffer[i]);
+        char c = enter_plugboard(buffer[i], PLUGBOARD_CONFIGS[1]); // C swapped with Q
+        printf("Character after plugboard: %c\n", c);
+
+        step_rotors(rotors);
+        print_status(rotors);
+
+        char enc_char = encrypt_char(c, rotors, reflector);
+        char final_char = enter_plugboard(enc_char, PLUGBOARD_CONFIGS[1]);
+
+        printf("FINAL encrypted character: %c -> %c\n", c, final_char);
+        
+        // store it 
+        enc_buffer[i] = final_char;
+    }
+
+    enc_buffer[i] = '\0';
+    printf("\nEncrypted word: %s\n", enc_buffer);
+
+    free(buffer);
+    free(enc_buffer);
     
     return 0;
 }
