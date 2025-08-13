@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -std=c11 -pedantic
+CFLAGS=-Wall -std=c99 -pedantic
 TARGET=build/enigma
 SRC=enigma.c
 

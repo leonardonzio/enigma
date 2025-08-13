@@ -1,13 +1,14 @@
 # Enigma M3 Simulator
 
-#### TODO
+### TODO
 - [x] Implement plugboard
 - [x] Implement notch
-- [x] Implement rotors & rotor stepping
+- [x] Implement rotors && rotor stepping
 - [x] Implement reflector
-- [ ] Implement keyboard
+- [x] Implement keyboard
+- [ ] Implement ring settings
 
-#### How to use
+### How to use
 - compiling:
     ```bash
     make
