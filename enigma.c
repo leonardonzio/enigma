@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 /* --------- constants + macros */
 #define ALPHABET_SIZE 26
@@ -114,8 +114,8 @@ char encrypt_char(char c, Rotor rotors[], Reflector reflector) {
 }
 
 void step_rotors(Rotor r[]){
-    bool right_at_notch  = (r[0].position == C_TO_INDEX(r[0].notch));
-    bool middle_at_notch = (r[1].position == C_TO_INDEX(r[1].notch));
+    uint8_t right_at_notch  = (r[0].position == C_TO_INDEX(r[0].notch));
+    uint8_t middle_at_notch = (r[1].position == C_TO_INDEX(r[1].notch));
 
     // double step ( se middle su notch, avanza anche left)
     if (middle_at_notch) {
