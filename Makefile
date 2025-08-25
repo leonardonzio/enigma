@@ -1,17 +1,15 @@
 CC=gcc
 CFLAGS=-Wall -std=c99 -pedantic
-TARGET=build/enigma
-SRC=enigma.c
 
-all: $(TARGET)
+all: build/enigma
 
-$(TARGET): $(SRC)
+build/enigma: enigma.c
 	@mkdir -p build
-	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+	$(CC) $(CFLAGS) enigma.c -o build/enigma
 
-run: $(TARGET)
-	./$(TARGET)
+run: build/enigma
+	./build/enigma
 
 clean:
-	rm -f $(TARGET)
+	rm -f build/enigma
 
