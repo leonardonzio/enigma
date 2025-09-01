@@ -1,19 +1,9 @@
 # Enigma M3 Simulator
 
 ### TODO
-- [x] Implement plugboard
-- [x] Implement notch
-- [x] Implement rotors && rotor stepping
-- [x] Implement reflector
-- [x] Implement keyboard
-- [ ] Implement ring settings
+- [ ] Ring settings
+- [ ] User can choose rotors, reflector, plugboard settings
 
 ### How to use
-- compiling:
-    ```bash
-    make
-    ```
-- running: 
-    ```bash
-    make run
-    ```
+- compiling: `make`
+- running: `make run`
