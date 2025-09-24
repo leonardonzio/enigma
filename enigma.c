@@ -171,27 +171,6 @@ void choose_rotors(Rotor rotors[]) {
 }
 
 
-/* needed for thesis */
-char encrypt_A() {
-    
-    Reflector reflector = ALL_REFLECTORS[0]; // Reflector B
-    Rotor rotors[NUM_ROTORS];
-    rotors[RIGHT]  = ALL_ROTORS[2]; // Rotor III
-    rotors[MIDDLE] = ALL_ROTORS[1]; // Rotor II
-    rotors[LEFT]   = ALL_ROTORS[0]; // Rotor I
-
-    char c = 'A';
-
-    step_rotors(rotors);
-    
-    c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]); // nessun collegamento
-    c = encrypt_char(c, rotors, reflector);
-    c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]); // nessun collegamento
-
-    return c;
-}
-
-
 int main(int argc, char *argv[]) {
     
     printf(" _____       _                             __  __ _____\n");
@@ -268,7 +247,7 @@ int main(int argc, char *argv[]) {
 
     enc_buffer[len] = '\0';
     printf("\nEncrypted word: %s\n", enc_buffer);
-    printf("if i encrypt A, output should be: %c\n", encrypt_A());
+    
     free(enc_buffer);
     return 0;
 }
