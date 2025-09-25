@@ -189,7 +189,7 @@ void choose_rotors(Rotor rotors[]) {
 EncryptionSteps encrypt_A() {
     
     EncryptionSteps steps;
-    
+     
     Reflector reflector = ALL_REFLECTORS[0]; // Reflector B
     Rotor rotors[NUM_ROTORS];
     
@@ -199,42 +199,34 @@ EncryptionSteps encrypt_A() {
     
     char c = 'A';
     steps.input_char = c;
-    
+   
+    /* useless.. how can I track rotors after return of the fun */ 
     step_rotors(rotors);
     
-    // Step 1: Enter plugboard
     c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]);
     steps.after_plugboard_1 = c;
     
-    // Step 2: Forward through rotor 1 (right)
     c = rotor_forward(c, &rotors[RIGHT]);
     steps.after_R_rotor = c;
     
-    // Step 3: Forward through rotor 2 (middle)
     c = rotor_forward(c, &rotors[MIDDLE]);
     steps.after_M_rotor = c;
     
-    // Step 4: Forward through rotor 3 (left)
     c = rotor_forward(c, &rotors[LEFT]);
     steps.after_L_rotor = c;
     
-    // Step 5: Through reflector
     c = reflector.wiring[C_TO_INDEX(c)];
     steps.after_reflector = c;
     
-    // Step 6: Backward through rotor 3 (left)
     c = rotor_backward(c, &rotors[LEFT]);
-    steps.after_rotor_R_back= c;
+    steps.after_R_rotor_back= c;
     
-    // Step 7: Backward through rotor 2 (middle)  
     c = rotor_backward(c, &rotors[MIDDLE]);
-    steps.after_rotor_M_back= c;
+    steps.after_M_rotor_back= c;
     
-    // Step 8: Backward through rotor 1 (right)
     c = rotor_backward(c, &rotors[RIGHT]);
-    steps.after_rotor_L_back= c;
+    steps.after_L_rotor_back= c;
     
-    // Step 9: Exit plugboard (in this case the pb is useless)
     c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]);
     steps.after_plugboard_2 = c;
     
