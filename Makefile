@@ -12,4 +12,3 @@ run: build/enigma
 
 clean:
 	rm -f build/enigma
-

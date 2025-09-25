@@ -35,6 +35,21 @@ typedef struct {
     char wiring[ALPHABET_SIZE]; 
 } Plugboard;
 
+/* struct to keep track of each step during enc for manim animation */
+typedef struct {
+    char input_char;
+    char after_plugboard_1;
+    char after_R_rotor;
+    char after_M_rotor; 
+    char after_L_rotor;
+    char after_reflector;
+    char after_L_rotor_back;
+    char after_M_rotor_back; 
+    char after_R_rotor_back;
+    char after_plugboard_2;
+    char output_char;
+} EncryptionSteps;
+
 enum { RIGHT = 0, MIDDLE = 1, LEFT = 2 };
 
 // https://www.ciphermachinesandcryptology.com/en/enigmatech.htm
@@ -168,6 +183,79 @@ void choose_rotors(Rotor rotors[]) {
     rotors[LEFT] = ALL_ROTORS[choice - 1]; 
 
     while (getchar() != '\n'); 
+}
+
+
+EncryptionSteps encrypt_A() {
+    
+    EncryptionSteps steps;
+    
+    Reflector reflector = ALL_REFLECTORS[0]; // Reflector B
+    Rotor rotors[NUM_ROTORS];
+    
+    rotors[RIGHT] = ALL_ROTORS[2];  // Rotor III
+    rotors[MIDDLE] = ALL_ROTORS[1]; // Rotor II  
+    rotors[LEFT] = ALL_ROTORS[0];   // Rotor I
+    
+    char c = 'A';
+    steps.input_char = c;
+    
+    step_rotors(rotors);
+    
+    // Step 1: Enter plugboard
+    c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]);
+    steps.after_plugboard_1 = c;
+    
+    // Step 2: Forward through rotor 1 (right)
+    c = rotor_forward(c, &rotors[RIGHT]);
+    steps.after_R_rotor = c;
+    
+    // Step 3: Forward through rotor 2 (middle)
+    c = rotor_forward(c, &rotors[MIDDLE]);
+    steps.after_M_rotor = c;
+    
+    // Step 4: Forward through rotor 3 (left)
+    c = rotor_forward(c, &rotors[LEFT]);
+    steps.after_L_rotor = c;
+    
+    // Step 5: Through reflector
+    c = reflector.wiring[C_TO_INDEX(c)];
+    steps.after_reflector = c;
+    
+    // Step 6: Backward through rotor 3 (left)
+    c = rotor_backward(c, &rotors[LEFT]);
+    steps.after_rotor_R_back= c;
+    
+    // Step 7: Backward through rotor 2 (middle)  
+    c = rotor_backward(c, &rotors[MIDDLE]);
+    steps.after_rotor_M_back= c;
+    
+    // Step 8: Backward through rotor 1 (right)
+    c = rotor_backward(c, &rotors[RIGHT]);
+    steps.after_rotor_L_back= c;
+    
+    // Step 9: Exit plugboard (in this case the pb is useless)
+    c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]);
+    steps.after_plugboard_2 = c;
+    
+    steps.output_char = c;
+    
+    return steps;
+}
+
+
+void get_rotor_positions(int positions[NUM_ROTORS]) {
+    Rotor rotors[NUM_ROTORS];
+    rotors[RIGHT] = ALL_ROTORS[2];  // Rotor III
+    rotors[MIDDLE] = ALL_ROTORS[1]; // Rotor II  
+    rotors[LEFT] = ALL_ROTORS[0];   // Rotor I
+    
+    /* due to the fact that i only encrypt one letter (A), stepping one time is enough to get rotors positions*/ 
+    step_rotors(rotors);
+    
+    positions[0] = rotors[RIGHT].position;
+    positions[1] = rotors[MIDDLE].position; 
+    positions[2] = rotors[LEFT].position;
 }
 
 
