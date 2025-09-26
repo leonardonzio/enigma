@@ -219,13 +219,13 @@ EncryptionSteps encrypt_A() {
     steps.after_reflector = c;
     
     c = rotor_backward(c, &rotors[LEFT]);
-    steps.after_R_rotor_back= c;
+    steps.after_L_rotor_back= c;
     
     c = rotor_backward(c, &rotors[MIDDLE]);
     steps.after_M_rotor_back= c;
     
     c = rotor_backward(c, &rotors[RIGHT]);
-    steps.after_L_rotor_back= c;
+    steps.after_R_rotor_back= c;
     
     c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]);
     steps.after_plugboard_2 = c;
