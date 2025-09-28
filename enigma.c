@@ -121,6 +121,7 @@ static void print_status(Rotor rotors[]){
 }
 
 char encrypt_char(char c, Rotor rotors[], Reflector reflector) {
+
     // forward path
     for (int i = 0; i < NUM_ROTORS; i++) {
         c = rotor_forward(c, &rotors[i]);
@@ -186,24 +187,25 @@ void choose_rotors(Rotor rotors[]) {
 }
 
 
-EncryptionSteps encrypt_A() {
+EncryptionSteps encrypt(char c) {
     
     EncryptionSteps steps;
-     
-    Reflector reflector = ALL_REFLECTORS[0]; // Reflector B
     Rotor rotors[NUM_ROTORS];
+    Reflector reflector; 
+    Plugboard plugboard;
     
-    rotors[RIGHT] = ALL_ROTORS[2];  // Rotor III
-    rotors[MIDDLE] = ALL_ROTORS[1]; // Rotor II  
-    rotors[LEFT] = ALL_ROTORS[0];   // Rotor I
+    rotors[RIGHT]   = ALL_ROTORS[2];        // Rotor III
+    rotors[MIDDLE]  = ALL_ROTORS[1];        // Rotor II  
+    rotors[LEFT]    = ALL_ROTORS[0];        // Rotor I
+    reflector       = ALL_REFLECTORS[0];    // Reflector B
+    plugboard       = PLUGBOARD_CONFIGS[0]; // no connections 
     
-    char c = 'A';
     steps.input_char = c;
    
-    /* useless.. how can I track rotors after return of the fun */ 
+    /* before encrypting a char a step is needed */ 
     step_rotors(rotors);
     
-    c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]);
+    c = enter_plugboard(c, plugboard);
     steps.after_plugboard_1 = c;
     
     c = rotor_forward(c, &rotors[RIGHT]);
@@ -227,7 +229,7 @@ EncryptionSteps encrypt_A() {
     c = rotor_backward(c, &rotors[RIGHT]);
     steps.after_R_rotor_back= c;
     
-    c = enter_plugboard(c, PLUGBOARD_CONFIGS[0]);
+    c = enter_plugboard(c, plugboard);
     steps.after_plugboard_2 = c;
     
     steps.output_char = c;
