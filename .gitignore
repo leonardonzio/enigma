@@ -1,7 +1,9 @@
 build/
 test/
 venv_manim/
-manim-enigma/media/
-manim-enigma/__pycache__/
+media/
+__pycache__/
+trash/
 
 enigma.so
+
