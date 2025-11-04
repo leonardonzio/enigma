@@ -2,8 +2,6 @@ from enum import Enum
 from manim import *
 import ctypes
 
-from numpy import character
-
 def character_alphabet_index(char: str):
     return Wiring.ALPHABET.value.index(char)
 
@@ -18,7 +16,6 @@ class Wiring(Enum):
     ROTOR_I = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
     ROTOR_II = "AJDKSIRUXBLHWTMCQGZNPYFVO"
     ROTOR_III = "BDFHJLCPRTXVZNYEIWGAKMUSQO"
-    ROTOR_III_STEP1 = "CEGIKBOQSWUYMXDHVFZJLTRPNA"
     REFLECTOR_B = "YRUHQSLDPXNGOKMIEBFZCWVJAT"
 
 
@@ -95,7 +92,7 @@ class Enigma(Scene):
             idx.set_color(letter_color).set_opacity(0.8)
             idx.set_stroke(BLACK, width=0.4, opacity=0.6)
             idx.next_to(t,RIGHT, buff=0.03)
-            
+
             pair = VGroup(t, idx)
             """
 
@@ -106,34 +103,33 @@ class Enigma(Scene):
                 t.rotate(angle - PI/2)
 
             t.move_to(pos)
-            
+
             letters.add(t)
 
         return VGroup(ring, highlight, letters)
 
     def update_content(
-        self, 
-        current_object, 
-        new_content, 
-        content_type="text", 
+        self,
+        current_object,
+        new_content,
+        content_type="text",
         ):
         """
         function to update the content of a rotor/text object
         """
 
         if content_type == "text":
-            new_object = Text(new_content, font_size=6, font="Source Code Pro")
+            new_object = Text(new_content, font_size=8, font="Source Code Pro")
         elif content_type == "rotor":
             new_object = self.create_rotor(new_content)
         else:
             raise ValueError(f"content_type inesistente: {content_type}")
-        
+
         new_object.move_to(current_object)
         self.play(Transform(current_object, new_object))
         return current_object
 
     def construct(self):
-        
         # loading shared library
         try:
             so_file = "../enigma.so"
@@ -146,7 +142,7 @@ class Enigma(Scene):
         encrypt = enigma.encrypt
         encrypt.restype = EncryptionSteps
         encrypt.argtypes = [ctypes.c_char];
-       
+
         # calling encrypt(char c)
         print("Type a letter to encrypt (A-Z): ", end="")
         user_input = input().strip().upper()
@@ -159,15 +155,15 @@ class Enigma(Scene):
         if proceed != 'y':
             print("Aborting animation..")
             return
-        
+
         input_char = steps.input_char.decode('utf-8')
         after_R_rotor = steps.after_R_rotor.decode('utf-8')
 
         # display text
         t1 = Text(f"""Prendo il rotore III ({Wiring.ROTOR_III.value}) della macchina enigma\n
             nella sua posizione iniziale (parto dall'indice 0).
-            """, 
-            font_size=6, font="Source Code Pro")
+            """,
+            font_size=8, font="Source Code Pro")
         t1.shift(UP)
         self.play(Write(t1))
         self.wait(1)
@@ -177,7 +173,7 @@ class Enigma(Scene):
         rotor_r.shift(DOWN*0.5)
         self.play(FadeIn(rotor_r))
         self.wait(1)
-        
+
         # display pressing letter, and stepping mechanism
         self.update_content(t1, f"""
             Ora premo il tasto '{input_char}'\n
@@ -354,75 +350,3 @@ class Enigma(Scene):
 
         self.play(Transform(after_L_rotor_t, reflector_letter))
         self.wait(1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
