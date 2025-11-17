@@ -4,9 +4,11 @@ venv_manim/
 media/
 __pycache__/
 trash/
-tex/
-
-
 
 enigma.so
 enigma-v2.c
+
+# docs
+tex/
+*.md
+imgs/

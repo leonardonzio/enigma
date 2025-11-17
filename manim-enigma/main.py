@@ -132,7 +132,7 @@ class Enigma(Scene):
     def construct(self):
         # loading shared library
         try:
-            so_file = "../enigma.so"
+            so_file = "../build/enigma.so"
             enigma = ctypes.CDLL(so_file)
         except OSError as e:
             print(f"Error loading shared library: {e}")
