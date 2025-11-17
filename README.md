@@ -2,6 +2,10 @@
 
 Implementation of the Enigma M3 cipher machine with interactive configuration, and Manim visualization.
 
+| <img src="enigma-m3.jpg" width="350"/> |
+|:--:| 
+| *Enigma M3, Vienna Technical Museum* |
+
 ## Dependencies
 
 - Python
