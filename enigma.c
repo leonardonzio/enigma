@@ -157,15 +157,16 @@ step_rotors(Enigma *e)
 {
     Rotor *r = e->rotors;
 
-    uint8_t right_at_notch  = (mod26(r[RIGHT].position - r[RIGHT].ring_setting)   == C_TO_INDEX(r[RIGHT].notch));
-    uint8_t middle_at_notch = (mod26(r[MIDDLE].position - r[MIDDLE].ring_setting) == C_TO_INDEX(r[MIDDLE].notch));
-
+    /* there is not ring setting because it does not interfere with stepping mechanism */
+    uint8_t right_is_at_notch  = (C_TO_INDEX(r[RIGHT].notch)  == r[RIGHT].position);
+    uint8_t middle_is_at_notch = (C_TO_INDEX(r[MIDDLE].notch) == r[MIDDLE].position);
+    
     // double step ( se middle su notch, avanza anche left)
-    if (middle_at_notch)
+    if (middle_is_at_notch)
         r[LEFT].position = (r[LEFT].position + 1) % ALPHABET_SIZE;
 
     // middle avanza se right su notch oppure middle su notch
-    if (right_at_notch || middle_at_notch)
+    if (right_is_at_notch || middle_is_at_notch)
         r[MIDDLE].position = (r[MIDDLE].position + 1) % ALPHABET_SIZE;
     
     // right avanza sempre
@@ -186,25 +187,48 @@ static void
 choose_rotors (Rotor rotors[]) 
 {
     int choice;
-    printf("Available rotors:\n");
+    int n_available_rotors = (int) (sizeof(ALL_ROTORS) / sizeof(ALL_ROTORS[0]));
+    const char *side_names[NUM_ROTORS] = { "right", "middle", "left" };
     
-    for (size_t i = 0; i < NUM_ROTORS; i++){
-        printf("%zu: %s\n", i + 1, ALL_ROTORS[i].name);
+    printf("Available rotors:\n");
+    for (int i = 0; i < n_available_rotors; i++){
+        printf("%d: %s\n", i + 1, ALL_ROTORS[i].name);
     }
-
     printf("\n");
-     
-    printf("Choose the right rotor (1-%d): ", NUM_ROTORS);
-    scanf("%d", &choice);
-    rotors[RIGHT] = ALL_ROTORS[choice - 1];
+    
+    /* loop for choosing settings for every rotors */
+    for (int i = 0; i < NUM_ROTORS; i++){
+        
+        /* choose which rotor */
+        printf("Choose the %s rotor (1-%d): ", side_names[i], NUM_ROTORS);
+        if (scanf("%d", &choice) != 1 || choice < 1 || choice > n_available_rotors){
+            printf("rotor invalid, default to rotor %d", 3-i);
+            choice = 3-i;
+        }
+        rotors[i] = ALL_ROTORS[choice - 1];
+        
+        /* starting position */
+        int position;
+        printf("  Starting position for %s rotor (0-25): ", side_names[i]);
+        scanf("%d", &position);
+        if (position < 0 || position > 25) {
+            printf("Invalid position. Defaulting to 0 (A).\n");
+            rotors[i].position = 0;
+        } else {
+            rotors[i].position = position;
+        }
 
-    printf("Choose the middle rotor (1-%d): ", NUM_ROTORS);
-    scanf("%d", &choice);
-    rotors[MIDDLE] = ALL_ROTORS[choice - 1]; 
-
-    printf("Choose the left rotor (1-%d): ", NUM_ROTORS);
-    scanf("%d", &choice);
-    rotors[LEFT] = ALL_ROTORS[choice - 1]; 
+        /* ring setting */
+        int ring_setting;
+        printf("  Ring setting for %s rotor (0-25): ", side_names[i]);
+        scanf("%d", &ring_setting);
+        if (ring_setting < 0 || ring_setting > 25) {
+            printf("Invalid ring setting. Defaulting to 0 (A).\n");
+            rotors[i].ring_setting = 0;
+        } else {
+            rotors[i].ring_setting = ring_setting;
+        }
+    }
 
     while (getchar() != '\n'); 
 }
@@ -216,14 +240,14 @@ choose_plugboard (Plugboard *plugboard)
 
     printf("Choose the plugboard:\n\n");
     printf("Available plugboard configurations:\n");
-    printf("1: no connections            (%s)\n", PLUGBOARD_CONFIGS[0].wiring);
-    printf("2: Q swapped with C          (%s)\n", PLUGBOARD_CONFIGS[1].wiring);
+    printf("1: no connections:\n");
+    printf("2: Q swapped with C");
     printf("\n");
 
     printf("Choose plugboard (1-%zu): ", sizeof(PLUGBOARD_CONFIGS) / sizeof(PLUGBOARD_CONFIGS[0]));
     scanf("%d", &choice);
 
-    if (choice < 1 || choice > (int)(sizeof(PLUGBOARD_CONFIGS) / sizeof(PLUGBOARD_CONFIGS[0]))) {
+    if (choice < 1 || choice > (int) (sizeof(PLUGBOARD_CONFIGS) / sizeof(PLUGBOARD_CONFIGS[0]))) {
         printf("Invalid choice. Default is plugboard 1 (no connections).\n");
         *plugboard = PLUGBOARD_CONFIGS[0];
     } else {
@@ -331,7 +355,7 @@ encrypt_word (Enigma *e, const char *word, char *encrypted_word)
         char c = enter_plugboard(word[i], e);
         printf("Character after plugboard (in): %c\n", c);
         
-        /* go thru rotors, reflector and rotors */
+        /* go through rotors, reflector and rotors */
         char encrypted_char = encrypt_character(c,e);
         
         /* enter the plugboard */

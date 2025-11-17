@@ -16,5 +16,15 @@ shared: build/enigma.so
 run: build/enigma
 	./build/enigma
 
+animation: shared
+	@if [ -z "$$VIRTUAL_ENV" ]; then \
+		echo "u have to run: source venv_manim/bin/activate"; \
+		exit 1; \
+	fi
+	@echo "using $$(which python)..."
+	manim -pql animation/main.py Enigma
+
 clean:
-	rm -f build/enigma
+	rm -f build/enigma*
+
+.PHONY: all build/enigma build/enigma.so shared run animation clean
