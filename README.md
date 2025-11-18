@@ -88,4 +88,4 @@ The implementation has been tested against two online Enigma simulator:
 
 - [Cipher Machines and Cryptology](https://www.ciphermachinesandcryptology.com/en/enigmatech.htm) – Enigma technical details
 - [Codes and Ciphers](https://www.codesandciphers.org.uk/enigma/rotorspec.htm) – Rotor specifications
-- [Manim Documentation](https://docs.manim.community/) – Animation library
+- The Manim Community Developers. (2025). Manim – Mathematical Animation Framework (Version v0.19.0) [Computer software]. https://www.manim.community/
