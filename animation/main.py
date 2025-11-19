@@ -138,15 +138,15 @@ class Enigma(Scene):
             print(f"Error loading shared library: {e}")
             return
 
-        # specifying arg and return types of the encrypt function
-        encrypt = enigma.encrypt
-        encrypt.restype = EncryptionSteps
-        encrypt.argtypes = [ctypes.c_char];
+        # specifying arg and return types of the trace_encrypt function
+        trace_encrypt = enigma.trace_encrypt;
+        trace_encrypt.restype = EncryptionSteps
+        trace_encrypt.argtypes = [ctypes.c_char];
 
         # calling encrypt(char c)
         print("Type a letter to encrypt (A-Z): ", end="")
         user_input = input().strip().upper()
-        steps = encrypt(user_input.encode('utf-8'))
+        steps = trace_encrypt(user_input.encode('utf-8'))
         print(steps)
 
         # asking if proceeding with video

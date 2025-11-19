@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
+#include <stdbool.h>
 
 /* --------- constants + macros */
 #define ALPHABET_SIZE 26
@@ -66,13 +66,13 @@ typedef struct {
 } Enigma;
 
 // https://www.ciphermachinesandcryptology.com/en/enigmatech.htm
-static Reflector ALL_REFLECTORS[] = {
+static const Reflector ALL_REFLECTORS[] = {
     { .wiring = "YRUHQSLDPXNGOKMIEBFZCWVJAT", .name = "Reflector B" },
     { .wiring = "FVPJIAOYEDRZXWGCTKUQSBNMHL", .name = "Reflector C" }
 };
 
 // https://www.codesandciphers.org.uk/enigma/rotorspec.htm
-static Rotor ALL_ROTORS[] = {
+static const Rotor ALL_ROTORS[] = {
     /* 
      * a ring setting of 0 is identical to A (A0, B1, .. , Z25)
      * position can be A0, B1, .. , Z25 
@@ -87,7 +87,7 @@ static Rotor ALL_ROTORS[] = {
       { .wiring = "FKQHTLXOCBJSPDZRAMEWNIUYGV", .notch = '', .position = 0, .name = "Rotor VIII"}*/
 };
 
-static Plugboard PLUGBOARD_CONFIGS[] = {
+static const Plugboard PLUGBOARD_CONFIGS[] = {
     { .wiring = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }, // no connections
     { .wiring = "ABQDEFGHIJKLMNOPCRSTUVWXYZ" }  // Q swapped with C
 };
@@ -118,7 +118,7 @@ rotor_backward (char c, const Rotor *r)
 }
 
 static void 
-print_status (Rotor rotors[])
+print_status (const Rotor rotors[])
 {
     int i, j;
     printf("\n=====STATUS=====\n");
@@ -137,7 +137,7 @@ print_status (Rotor rotors[])
 }
 
 static char 
-encrypt_character (char c, Enigma *e)
+encrypt_character (char c, const Enigma *e)
 {
     for (int i = 0; i < NUM_ROTORS; i++){
         c = rotor_forward(c, &e->rotors[i]);
@@ -158,8 +158,8 @@ step_rotors(Enigma *e)
     Rotor *r = e->rotors;
 
     /* there is not ring setting because it does not interfere with stepping mechanism */
-    uint8_t right_is_at_notch  = (C_TO_INDEX(r[RIGHT].notch)  == r[RIGHT].position);
-    uint8_t middle_is_at_notch = (C_TO_INDEX(r[MIDDLE].notch) == r[MIDDLE].position);
+    bool right_is_at_notch  = (C_TO_INDEX(r[RIGHT].notch)  == r[RIGHT].position);
+    bool middle_is_at_notch = (C_TO_INDEX(r[MIDDLE].notch) == r[MIDDLE].position);
     
     // double step ( se middle su notch, avanza anche left)
     if (middle_is_at_notch)
@@ -174,7 +174,7 @@ step_rotors(Enigma *e)
 }
 
 static char 
-enter_plugboard (char c, Enigma *e)
+enter_plugboard (char c, const Enigma *e)
 {
     for (int i = 0; i < ALPHABET_SIZE; i++){
         if (c == e->plugboard.wiring[i])
@@ -200,9 +200,9 @@ choose_rotors (Rotor rotors[])
     for (int i = 0; i < NUM_ROTORS; i++){
         
         /* choose which rotor */
-        printf("Choose the %s rotor (1-%d): ", side_names[i], NUM_ROTORS);
+        printf("Choose the %s rotor (1-%d): ", side_names[i], n_available_rotors);
         if (scanf("%d", &choice) != 1 || choice < 1 || choice > n_available_rotors){
-            printf("rotor invalid, default to rotor %d", 3-i);
+            printf("rotor invalid, default to rotor %d\n", 3-i);
             choice = 3-i;
         }
         rotors[i] = ALL_ROTORS[choice - 1];
@@ -230,7 +230,8 @@ choose_rotors (Rotor rotors[])
         }
     }
 
-    while (getchar() != '\n'); 
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF);
 }
 
 static void
@@ -254,7 +255,8 @@ choose_plugboard (Plugboard *plugboard)
         *plugboard = PLUGBOARD_CONFIGS[choice - 1];
     }
 
-    while (getchar() != '\n');
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF);
 }
 
 static void
@@ -279,14 +281,15 @@ choose_reflector(Reflector *reflector)
         printf("Invalid choice. Default is Reflector B.\n");
         *reflector = ALL_REFLECTORS[0];
     }
-
-    while (getchar() != '\n');
+    
     printf("Selected %s.\n", reflector->name);
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF);
 }
 
 /* used for manim animation */
 EncryptionSteps 
-encrypt(char c)
+trace_encrypt(char c)
 {
     EncryptionSteps steps;
     Enigma e = {
@@ -356,7 +359,7 @@ encrypt_word (Enigma *e, const char *word, char *encrypted_word)
         printf("Character after plugboard (in): %c\n", c);
         
         /* go through rotors, reflector and rotors */
-        char encrypted_char = encrypt_character(c,e);
+        char encrypted_char = encrypt_character(c, e);
         
         /* enter the plugboard */
         encrypted_char = enter_plugboard(encrypted_char, e);
